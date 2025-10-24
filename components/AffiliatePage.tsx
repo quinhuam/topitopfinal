@@ -5,13 +5,6 @@ import { useApp } from '../App.tsx';
 import { View } from '../types.ts';
 import { ChevronLeftIcon } from './icons';
 
-const TopitopLogoSmall = () => (
-    <div>
-        <h1 className="text-3xl font-bold text-red-600 tracking-tighter">topitop</h1>
-        <p className="text-xs text-gray-500 tracking-[.2em] -mt-1">Catálogo</p>
-    </div>
-);
-
 const AffiliatePage: React.FC = () => {
     const { setView } = useApp();
     
@@ -25,7 +18,7 @@ const AffiliatePage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
              <header className="w-full max-w-4xl flex justify-between items-center mb-6">
-                <TopitopLogoSmall />
+                <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" onClick={() => setView(View.LOGIN)} />
                 <div>
                     <a href="#" className="font-bold text-gray-700 hover:text-red-600 text-sm">CONTÁCTANOS</a>
                 </div>

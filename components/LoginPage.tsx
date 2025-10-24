@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
             {/* Left side: Form */}
             <div className="w-full lg:w-1/2 xl:w-1/3 bg-white flex flex-col justify-center items-center p-8 sm:p-12 order-2 lg:order-1">
                 <div className="w-full max-w-sm">
-                    <img src="https://topitoprepo1-nlqt.vercel.app/assets/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" />
+                    <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" />
                     <h2 className="text-xl font-semibold text-gray-800 mb-1">Bienvenida a Topitop catálogo</h2>
                     <p className="text-gray-600 mb-6">Si ya eres asociada y tienes una cuenta creada</p>
                     
@@ -63,15 +63,12 @@ const LoginPage: React.FC = () => {
             </div>
 
             {/* Right side: Image */}
-            <div className="relative w-full lg:w-1/2 xl:w-2/3 bg-cover bg-center order-1 lg:order-2 min-h-[300px] lg:min-h-screen" style={{ backgroundImage: "url('https://images.pexels.com/photos/3755755/pexels-photo-3755755.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')" }}>
+            <div className="relative w-full lg:w-1/2 xl:w-2/3 bg-cover bg-center order-1 lg:order-2 min-h-[300px] lg:min-h-screen" style={{ backgroundImage: "url('/images/port-2.jpg')" }}>
                  <div className="absolute top-0 right-0 p-6 flex space-x-6 w-full justify-end">
                     {/* FIX: Corrected typo from View.AFFILIate to View.AFFILIATE. */}
                     <button onClick={() => setView(View.AFFILIATE)} className="font-bold text-gray-800 hover:text-red-600">AFÍLIATE</button>
                     <a href="#" className="font-bold text-gray-800 hover:text-red-600">CONTÁCTANOS</a>
                 </div>
-                 <div className="absolute bottom-10 left-10 bg-white p-4 rounded-lg shadow-lg hidden md:block animate-fade-in">
-                    <img src="https://picsum.photos/seed/catalogcover/200/300" alt="Catalog Preview" className="w-48"/>
-                 </div>
             </div>
         </div>
     );
