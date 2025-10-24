@@ -61,7 +61,7 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeProductCategory, setActiveProductCategory] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [userData, setUserData] = useState<UserData>({ points: 380, redeemedPrizes: {} });
+  const [userData, setUserData] = useState<UserData>({ points: 400, redeemedPrizes: {} });
   const [isSliderVisible, setIsSliderVisible] = useState(true);
 
   const toggleSliderVisibility = () => {

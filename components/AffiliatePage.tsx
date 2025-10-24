@@ -18,7 +18,9 @@ const AffiliatePage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
              <header className="w-full max-w-4xl flex justify-between items-center mb-6">
-                <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" onClick={() => setView(View.LOGIN)} />
+                <div className="flex items-center">
+                    <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" onClick={() => setView(View.LOGIN)} />
+                </div>
                 <div>
                     <a href="#" className="font-bold text-gray-700 hover:text-red-600 text-sm">CONTÁCTANOS</a>
                 </div>

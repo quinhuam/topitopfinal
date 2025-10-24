@@ -6,19 +6,14 @@ import { ChevronRightIcon, ChevronLeftIcon } from './icons';
 const Slider: React.FC = () => {
     const slides = [
         {
-            image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: 'LO+ NUEVO',
-            subtitle: 'edición DENIM'
+            image: '/images/BANNERDENIM.jpeg',
+            title: '',
+            subtitle: ''
         },
         {
-            image: 'https://images.pexels.com/photos/1040428/pexels-photo-1040428.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: 'NUEVA CAMPAÑA',
-            subtitle: 'Tendencias de Verano'
-        },
-        {
-            image: 'https://images.pexels.com/photos/1154861/pexels-photo-1154861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: 'OFERTAS',
-            subtitle: 'Hasta 50% OFF'
+            image: '/images/BANNERDENIM.jpeg',
+            title: '',
+            subtitle: ''
         }
     ];
 
@@ -37,12 +32,12 @@ const Slider: React.FC = () => {
             {slides.map((slide, index) => (
                 <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
                     <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col items-center justify-center text-white p-4">
+                    <div className="absolute inset-0 bg-opacity-30 flex flex-col items-center justify-center text-white p-4">
                         <h2 className="text-4xl md:text-6xl font-extrabold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>{slide.title}</h2>
                         <p className="text-xl md:text-2xl font-light tracking-widest" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>{slide.subtitle}</p>
-                         <button className="mt-4 bg-white text-black font-bold py-2 px-6 rounded-full text-sm hover:bg-gray-200 transition">
+                         {/*<button className="mt-4 bg-white text-black font-bold py-2 px-6 rounded-full text-sm hover:bg-gray-200 transition">
                             Ver más →
-                        </button>
+                        </button>*/}
                     </div>
                 </div>
             ))}
@@ -67,9 +62,9 @@ const DashboardPage: React.FC = () => {
     };
 
     const prizePromos = [
-        { points: 250, image: 'https://images.pexels.com/photos/5632398/pexels-photo-5632398.jpeg?auto=compress&cs=tinysrgb&w=600' },
-        { points: 250, image: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=600' },
-        { points: 250, image: 'https://images.pexels.com/photos/3932957/pexels-photo-3932957.jpeg?auto=compress&cs=tinysrgb&w=600' },
+        { points: 250, image: '/images/banner3.png' },
+        { points: 250, image: '/images/banner2.png' },
+        { points: 250, image: '/images/banner1.png' },
     ];
 
     return (
@@ -121,8 +116,8 @@ const DashboardPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {prizePromos.map((promo, index) => (
                     <div key={index} className="relative rounded-lg overflow-hidden shadow-md group">
-                        <img src={promo.image} alt={`Gana con ${promo.points} pts`} className="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-300"/>
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <img src={promo.image} alt={`Gana con ${promo.points} pts`} className="w-full object-cover transform group-hover:scale-110 transition-transform duration-300"/>
+                        <div className="absolute inset-0 bg-opacity-50 flex items-center justify-center">
                             <div className="text-center text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.6)' }}>
                                 <p className="font-extrabold text-2xl">GANA</p>
                                 <p className="font-semibold">con {promo.points} pts.</p>

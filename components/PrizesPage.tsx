@@ -8,27 +8,27 @@ const prizeData = {
     points: 250,
     nextLevel: 380,
     items: [
-      { name: 'Reloj digital', image: 'https://picsum.photos/seed/reloj-digital/400' },
-      { name: 'Giftcard', image: 'https://picsum.photos/seed/giftcard/400' },
-      { name: 'Secadora', image: 'https://picsum.photos/seed/secadora/400' },
+      { name: 'Reloj digital', image: '/images/premios/reloj_digital.png' },
+      { name: 'Giftcard', image: '/images/premios/giftcard.png' },
+      { name: 'Secadora', image: '/images/premios/secadora.png' },
     ]
   },
   2: {
     points: 380,
     nextLevel: 500,
     items: [
-      { name: 'Olla arrocera', image: 'https://picsum.photos/seed/olla-arrocera/400' },
-      { name: 'Plancha a vapor', image: 'https://picsum.photos/seed/plancha-vapor/400' },
-      { name: 'Hervidor eléctrico', image: 'https://picsum.photos/seed/hervidor/400' },
+      { name: 'Olla arrocera', image: '/images/premios/olla_arrocera.png' },
+      { name: 'Plancha a vapor', image: '/images/premios/plancha_a_vapor.png' },
+      { name: 'Hervidor eléctrico', image: '/images/premios/hervidor_electrico.png' },
     ]
   },
   3: {
     points: 500,
     nextLevel: 1000,
     items: [
-      { name: 'Pack X3 sartenes', image: 'https://picsum.photos/seed/sartenes/400' },
-      { name: 'Juego de ollas', image: 'https://picsum.photos/seed/juego-ollas/400' },
-      { name: 'Pack Sandwichera + Hervidor', image: 'https://picsum.photos/seed/pack-electro/400' },
+      { name: 'Pack X3 sartenes', image: '/images/premios/pack_sartenes.png' },
+      { name: 'Juego de ollas', image: '/images/premios/juego_ollas.png' },
+      { name: 'Pack Sandwichera + Hervidor', image: '/images/premios/pack_sandwichera_hervidor.png' },
     ]
   },
 };

@@ -7,20 +7,17 @@ import { Product } from '../types.ts';
 
 // Mock Data Enhanced
 const initialProducts: Product[] = [
-    { id: 110737, name: 'Polera Franela - Pink Rose', price: 50.00, image: 'https://picsum.photos/seed/pinkshirt/400/600', gender: 'Mujer', category: 'Poleras', brand: 'Topitop' },
-    { id: 110738, name: 'Short Urban - Sporty blue', price: 25.00, image: 'https://picsum.photos/seed/blueshorts/400/600', gender: 'Mujer', category: 'Shorts', brand: 'Hawk' },
-    { id: 110739, name: 'Jean Mom Fit - Classic Denim', price: 89.90, image: 'https://picsum.photos/seed/jeans/400/600', gender: 'Mujer', category: 'Jeans', brand: 'Topitop' },
-    { id: 110740, name: 'Blusa Manga Larga - White', price: 45.00, image: 'https://picsum.photos/seed/blouse/400/600', gender: 'Mujer', category: 'Blusas', brand: 'Xiomi' },
-    { id: 110741, name: 'Polo Básico - Black', price: 29.90, image: 'https://picsum.photos/seed/blackpolo/400/600', gender: 'Hombre', category: 'Polos', brand: 'Hawk' },
-    { id: 110742, name: 'Pantalón Cargo - Beige', price: 99.90, image: 'https://picsum.photos/seed/cargopants/400/600', gender: 'Hombre', category: 'Pantalones', brand: 'Topitop' },
-    { id: 110743, name: 'Casaca Bomber - Olive Green', price: 129.90, image: 'https://picsum.photos/seed/bomber/400/600', gender: 'Hombre', category: 'Casacas', brand: 'Hawk' },
-    { id: 110744, name: 'Conjunto Jogger - Grey', price: 79.90, image: 'https://picsum.photos/seed/jogger/400/600', gender: 'Niños', category: 'Conjuntos', brand: 'Xiomi' },
-    { id: 110745, name: 'Vestido Estampado - Floral', price: 69.90, image: 'https://picsum.photos/seed/dress/400/600', gender: 'Niños', category: 'Vestidos', brand: 'Topitop' },
-    { id: 110746, name: 'Juego de Sábanas - Blue Sky', price: 119.90, image: 'https://picsum.photos/seed/sheets/400/600', gender: 'Hogar', category: 'Dormitorio', brand: 'Topitop' },
-    { id: 110747, name: 'Set de Toallas - White Cotton', price: 79.90, image: 'https://picsum.photos/seed/towels/400/600', gender: 'Hogar', category: 'Baño', brand: 'Xiomi' },
-    { id: 110748, name: 'Camisa Leñador - Red Plaid', price: 75.00, image: 'https://picsum.photos/seed/plaidshirt/400/600', gender: 'Hombre', category: 'Camisas', brand: 'Topitop' },
-    { id: 110749, name: 'Falda Mini - Black', price: 55.00, image: 'https://picsum.photos/seed/skirt/400/600', gender: 'Mujer', category: 'Faldas', brand: 'Hawk' },
-    { id: 110750, name: 'Polo Manga Cero - Graphic', price: 35.00, image: 'https://picsum.photos/seed/graphicpolo/400/600', gender: 'Hombre', category: 'Polos', brand: 'Hawk' },
+    { id: 110737, name: 'Polera Franela - Pink Rose', price: 50.00, image: '/images/products/57b70hem.png', gender: 'Mujer', category: 'Poleras', brand: 'Topitop' },
+    { id: 110738, name: 'Short Mujer Madeleine - Celeste Indigo', price: 25.00, image: '/images/products/0wfw82nb.png', gender: 'Mujer', category: 'Shorts', brand: 'Hawk' },
+    { id: 110739, name: 'Jean Mujer Zara - Total Bleach', price: 89.90, image: '/images/products/73h54yeq.png', gender: 'Mujer', category: 'Jeans', brand: 'Topitop' },
+    { id: 110740, name: 'Blusa Manga Larga - White', price: 45.00, image: '/images/products/n0jdiufd.png', gender: 'Mujer', category: 'Blusas', brand: 'Xiomi' },
+    { id: 110741, name: 'Polo Básico - Black', price: 29.90, image: '/images/products/3038ukk9.png', gender: 'Hombre', category: 'Polos', brand: 'Hawk' },
+    { id: 110742, name: 'Pantalón Cargo - Beige', price: 99.90, image: '/images/products/70st97zk.png', gender: 'Hombre', category: 'Pantalones', brand: 'Topitop' },
+    { id: 110743, name: 'Casaca Hombre Eryc Camel', price: 129.90, image: '/images/products/aqhko8jj.png', gender: 'Hombre', category: 'Casacas', brand: 'Hawk' },
+    { id: 110745, name: 'Vestido Estampado - Floral', price: 69.90, image: '/images/products/f4cqeci9.png', gender: 'Mujer', category: 'Vestidos', brand: 'Topitop' },
+    { id: 110750, name: 'Polo Hombre System - Negro', price: 35.00, image: '/images/products/b2kdhbxu.png', gender: 'Hombre', category: 'Polos', brand: 'Hawk' },
+    { id: 110748, name: 'Camisa Leñador - Red Plaid', price: 75.00, image: '/images/products/4mozfkre.png', gender: 'Hombre', category: 'Camisas', brand: 'Topitop' },
+    { id: 110749, name: 'Falda Mini - Black', price: 55.00, image: '/images/products/kosm5slj.png', gender: 'Mujer', category: 'Faldas', brand: 'Hawk' },
 ];
 
 const categories = [...new Set(initialProducts.map(p => p.category))];
@@ -51,7 +48,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden group">
             <div className="relative">
-                <img src={product.image} alt={product.name} className="w-full h-64 object-cover" />
+                <img src={product.image} alt={product.name} className="w-full h-150 object-cover" />
             </div>
             <div className="p-4">
                 <p className="text-sm text-gray-500">{product.id}</p>

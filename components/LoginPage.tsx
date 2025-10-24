@@ -18,7 +18,10 @@ const LoginPage: React.FC = () => {
             {/* Left side: Form */}
             <div className="w-full lg:w-1/2 xl:w-1/3 bg-white flex flex-col justify-center items-center p-8 sm:p-12 order-2 lg:order-1">
                 <div className="w-full max-w-sm">
-                    <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-40 mb-8" />
+                    <div className="flex items-center justify-center">
+                        <img src="/images/logocatalogo-DOgmBwgp.jpg" alt="Topitop Catalogo Logo" className="w-50 mb-8" />
+                    </div>
+                    
                     <h2 className="text-xl font-semibold text-gray-800 mb-1">Bienvenida a Topitop catálogo</h2>
                     <p className="text-gray-600 mb-6">Si ya eres asociada y tienes una cuenta creada</p>
                     
