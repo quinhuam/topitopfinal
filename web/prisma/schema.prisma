@@ -1,0 +1,1283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model carts {
+  id         BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    Int?
+  created_at DateTime?    @db.Timestamp(0)
+  updated_at DateTime?    @db.Timestamp(0)
+  cart_items cart_items[]
+}
+
+model cart_items {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  cart_id    BigInt    @db.UnsignedBigInt
+  product_id Int?      @db.UnsignedInt
+  sku        Int
+  size       String?   @db.VarChar(20)
+  quantity   Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  carts   carts     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product products? @relation(fields: [product_id], references: [id])
+  item    items     @relation("ItemCartItems", fields: [sku], references: [sku])
+
+  @@unique([cart_id, sku])
+}
+
+model addons {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String    @db.VarChar(255)
+  keyword         String?
+  type            String?
+  uninstall_files String?   @db.Text
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model admin_languages {
+  id         Int     @id @default(autoincrement())
+  is_default Boolean @default(false)
+  language   String  @db.VarChar(100)
+  file       String  @db.VarChar(100)
+  name       String  @db.VarChar(100)
+  rtl        Boolean @default(false)
+}
+
+model admin_user_conversations {
+  id           Int                            @id @default(autoincrement())
+  subject      String
+  user_id      Int
+  message      String                         @db.Text
+  created_at   DateTime?                      @db.Timestamp(0)
+  updated_at   DateTime?                      @db.Timestamp(0)
+  type         admin_user_conversations_type?
+  order_number String?                        @db.Text
+}
+
+model admin_user_messages {
+  id              Int       @id @default(autoincrement())
+  conversation_id Int
+  message         String    @db.Text
+  user_id         Int?
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model admins {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  name           String
+  email          String    @unique(map: "admins_email_unique")
+  phone          String
+  role_id        Int       @default(0)
+  photo          String?
+  password       String
+  status         Int       @default(1) @db.TinyInt
+  remember_token String?   @db.VarChar(100)
+  email_token    String?   @db.VarChar(100)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  shop_name      String?   @db.Text
+}
+
+model affliate_bonuses {
+  id             BigInt    @id @default(autoincrement())
+  refer_id       Int
+  bonus          Float     @default(0)
+  type           String    @db.VarChar(255)
+  user_id        Int
+  customer_email String    @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model arrival_sections {
+  id         Int       @id @default(autoincrement())
+  title      String    @db.VarChar(500)
+  header     String    @db.VarChar(500)
+  photo      String    @db.VarChar(300)
+  up_sale    String?   @db.VarChar(255)
+  url        String?   @db.Text
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+}
+
+model attribute_options {
+  id           Int       @id @default(autoincrement())
+  attribute_id Int?
+  name         String?   @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model attributes {
+  id                Int       @id @default(autoincrement())
+  attributable_id   Int?
+  attributable_type String?   @db.VarChar(255)
+  name              String?   @db.VarChar(255)
+  input_name        String?   @db.VarChar(255)
+  price_status      Int       @default(1)
+  details_status    Int       @default(1)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+model banners {
+  id    Int          @id @default(autoincrement())
+  photo String?
+  link  String?
+  type  banners_type
+  title String?      @db.VarChar(255)
+  text  String?      @db.VarChar(255)
+}
+
+model blog_categories {
+  id   Int    @id @default(autoincrement())
+  name String
+  slug String
+}
+
+model blogs {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  category_id      Int
+  title            String
+  slug             String    @db.VarChar(255)
+  details          String    @db.Text
+  photo            String?
+  source           String
+  views            Int       @default(0)
+  status           Int       @default(1) @db.TinyInt
+  meta_tag         String?   @db.Text
+  meta_description String?   @db.Text
+  tags             String?   @db.Text
+  created_at       DateTime? @db.Timestamp(0)
+}
+
+model catalogo_producto {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  catalogo_id BigInt    @db.UnsignedBigInt
+  product_id  Int       @db.UnsignedInt
+  precio      Decimal?  @db.Decimal(10, 2)
+  stock       Int?
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  catalogos   catalogos @relation(fields: [catalogo_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "catalogo_producto_catalogo_id_foreign")
+
+  @@unique([catalogo_id, product_id], map: "catalogo_producto_catalogo_id_product_id_unique")
+}
+
+model catalogos {
+  id                   BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  nombre               String              @db.VarChar(255)
+  descripcion          String?             @db.Text
+  fecha_inicio         DateTime            @db.Date
+  fecha_fin            DateTime            @db.Date
+  fecha_limite_pedidos DateTime            @db.Date
+  image                String?             @default("") @db.VarChar(255)
+  catalogo             String?             @default("") @db.VarChar(255)
+  activo               Boolean             @default(true)
+  created_at           DateTime?           @db.Timestamp(0)
+  updated_at           DateTime?           @db.Timestamp(0)
+  catalogo_producto    catalogo_producto[]
+}
+
+model categories {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String
+  status      Boolean @default(true)
+  photo       String?
+  image       String?
+  is_featured Int?
+}
+
+model childcategories {
+  id             Int     @id @default(autoincrement())
+  subcategory_id Int
+  name           String
+  slug           String
+  status         Boolean @default(true)
+}
+
+model cities {
+  id         BigInt @id @default(autoincrement())
+  state_id   Int
+  city_name  String @db.VarChar(255)
+  status     Int    @default(0) @db.TinyInt
+  country_id Int
+}
+
+model comments {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      @db.UnsignedInt
+  product_id Int      @db.UnsignedInt
+  text       String   @db.Text
+  created_at DateTime @default(dbgenerated("'0000-00-00 00:00:00'")) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+model conversations {
+  id            Int       @id @default(autoincrement())
+  subject       String
+  sent_user     Int
+  recieved_user Int
+  message       String    @db.Text
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model counters {
+  id           Int           @id @default(autoincrement())
+  type         counters_type @default(referral)
+  referral     String?       @db.VarChar(255)
+  total_count  Int           @default(0)
+  todays_count Int           @default(0)
+  today        DateTime?     @db.Date
+}
+
+model countries {
+  id           Int    @id @default(autoincrement())
+  country_code String @default("") @db.VarChar(2)
+  country_name String @default("") @db.VarChar(100)
+  tax          Float  @default(0)
+  status       Int    @default(0)
+}
+
+model coupons {
+  id             Int      @id @default(autoincrement())
+  code           String
+  type           Int      @db.TinyInt
+  price          Float
+  times          String?
+  used           Int      @default(0) @db.UnsignedInt
+  status         Int      @default(1) @db.TinyInt
+  start_date     DateTime @db.Date
+  end_date       DateTime @db.Date
+  coupon_type    String?  @db.VarChar(255)
+  category       Int?
+  sub_category   Int?
+  child_category Int?
+}
+
+model currencies {
+  id         Int     @id @default(autoincrement())
+  name       String  @db.VarChar(30)
+  sign       String  @db.VarChar(10)
+  value      Float
+  is_default Boolean @default(false)
+}
+
+model delivery_riders {
+  id              BigInt  @id @default(autoincrement())
+  order_id        Int?
+  vendor_id       Int?
+  rider_id        Int?
+  pickup_point_id Int?
+  service_area_id Int?
+  status          String? @db.VarChar(255)
+}
+
+model deposits {
+  id             Int       @id @default(autoincrement())
+  user_id        Int?
+  deposit_number String?   @db.VarChar(255)
+  currency       Bytes?    @db.Blob
+  currency_code  String?   @db.VarChar(255)
+  amount         Float?    @default(0)
+  currency_value Float?    @default(0)
+  method         String?   @db.VarChar(255)
+  txnid          String?   @db.VarChar(255)
+  flutter_id     String?   @db.Text
+  status         Int       @default(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model email_templates {
+  id            Int     @id @default(autoincrement())
+  email_type    String? @db.VarChar(255)
+  email_subject String? @db.MediumText
+  email_body    String? @db.LongText
+  status        Int     @default(1)
+}
+
+model faqs {
+  id      Int    @id @default(autoincrement()) @db.UnsignedInt
+  title   String
+  details String @db.Text
+}
+
+model favorite_sellers {
+  id        Int @id @default(autoincrement())
+  user_id   Int
+  vendor_id Int
+}
+
+model fonts {
+  id          Int     @id @default(autoincrement())
+  is_default  Int?    @default(0) @db.TinyInt
+  font_family String? @db.VarChar(100)
+  font_value  String? @db.VarChar(100)
+}
+
+model galleries {
+  id         Int    @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int    @db.UnsignedInt
+  photo      String
+}
+
+model generalsettings {
+  id                     BigInt                       @id @default(autoincrement())
+  logo                   String?
+  favicon                String
+  title                  String
+  colors                 String?
+  loader                 String
+  admin_loader           String?
+  is_talkto              Boolean                      @default(true)
+  talkto                 String?                      @db.Text
+  is_language            Boolean                      @default(true)
+  is_loader              Boolean                      @default(true)
+  is_disqus              Boolean                      @default(false)
+  disqus                 String?                      @db.LongText
+  guest_checkout         Boolean                      @default(false)
+  currency_format        Boolean                      @default(false)
+  withdraw_fee           Float                        @default(0)
+  withdraw_charge        Float                        @default(0)
+  shipping_cost          Float                        @default(0)
+  mail_driver            String?
+  mail_host              String?
+  mail_port              String?
+  mail_encryption        String?
+  mail_user              String?
+  mail_pass              String?
+  from_email             String?
+  from_name              String?
+  is_smtp                Boolean                      @default(false)
+  is_comment             Boolean                      @default(true)
+  is_currency            Boolean                      @default(true)
+  is_affilate            Boolean                      @default(true)
+  affilate_charge        Int                          @default(0)
+  affilate_banner        String?                      @db.Text
+  fixed_commission       Float                        @default(0)
+  percentage_commission  Float                        @default(0)
+  multiple_shipping      Boolean                      @default(false)
+  multiple_packaging     Int                          @default(0) @db.TinyInt
+  vendor_ship_info       Boolean                      @default(false)
+  reg_vendor             Boolean                      @default(false)
+  footer_color           String?
+  copyright_color        String?
+  copyright              String?                      @db.VarChar(255)
+  is_admin_loader        Boolean                      @default(false)
+  is_verification_email  Boolean                      @default(false)
+  wholesell              Int                          @default(0)
+  is_capcha              Boolean                      @default(false)
+  capcha_secret_key      String?                      @db.VarChar(100)
+  capcha_site_key        String?                      @db.VarChar(100)
+  error_banner_404       String?
+  error_banner_500       String?
+  is_popup               Boolean                      @default(false)
+  popup_background       String?                      @db.Text
+  breadcrumb_banner      String?                      @db.VarChar(500)
+  invoice_logo           String?
+  user_image             String?
+  vendor_color           String?
+  is_secure              Boolean                      @default(false)
+  is_report              Boolean
+  footer_logo            String?                      @db.Text
+  show_stock             Boolean                      @default(false)
+  is_maintain            Boolean                      @default(false)
+  header_color           generalsettings_header_color @default(light)
+  maintain_text          String?                      @db.Text
+  is_buy_now             Int                          @db.TinyInt
+  version                String?                      @db.VarChar(40)
+  affilate_product       Boolean                      @default(true)
+  verify_product         Boolean                      @default(false)
+  page_count             Int                          @default(0)
+  flash_count            Int                          @default(0)
+  hot_count              Int                          @default(0)
+  new_count              Int                          @default(0)
+  sale_count             Int                          @default(0)
+  best_seller_count      Int                          @default(0)
+  popular_count          Int                          @default(0)
+  top_rated_count        Int                          @default(0)
+  big_save_count         Int                          @default(0)
+  trending_count         Int                          @default(0)
+  seller_product_count   Int                          @default(0)
+  wishlist_count         Int                          @default(0)
+  vendor_page_count      Int                          @default(0)
+  min_price              Float                        @default(0)
+  max_price              Float                        @default(0)
+  post_count             Boolean                      @default(false)
+  product_page           String?                      @db.Text
+  wishlist_page          String?                      @db.Text
+  is_contact_seller      Boolean                      @default(false)
+  is_debug               Boolean                      @default(false)
+  decimal_separator      String?                      @db.VarChar(10)
+  thousand_separator     String?                      @db.VarChar(10)
+  is_cookie              Boolean                      @default(false)
+  product_affilate       Boolean                      @default(false)
+  product_affilate_bonus Int                          @default(0)
+  is_reward              Int                          @default(0)
+  reward_point           Int                          @default(0)
+  reward_dolar           Int                          @default(0)
+  physical               Int                          @default(1) @db.TinyInt
+  digital                Int                          @default(1) @db.TinyInt
+  license                Int                          @default(1) @db.TinyInt
+  listing                Int                          @default(1) @db.TinyInt
+  affilite               Int                          @default(1) @db.TinyInt
+  partner_title          String?                      @db.VarChar(250)
+  partner_text           String?                      @db.LongText
+  deal_title             String?                      @db.VarChar(255)
+  deal_details           String?                      @db.VarChar(600)
+  deal_time              DateTime?                    @db.Date
+  deal_background        String?                      @db.VarChar(500)
+  theme                  String                       @default("theme1") @db.VarChar(50)
+  soles_por_punto        Float?                       @default(1) @db.Float
+}
+
+model items {
+  id         Int       @id @default(autoincrement())
+  product_id Int?      @db.UnsignedInt
+  sku        Int?      @unique(map: "sku")
+  talla      String?   @db.Char(2)
+  stock      Int?
+  active     Int?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  product    products?    @relation(fields: [product_id], references: [id])
+  cart_items cart_items[] @relation("ItemCartItems")
+}
+
+model languages {
+  id         Int     @id @default(autoincrement())
+  is_default Boolean @default(false)
+  language   String? @db.VarChar(100)
+  file       String? @db.VarChar(100)
+  name       String  @db.VarChar(100)
+  rtl        Boolean @default(false)
+}
+
+model messages {
+  id              Int       @id @default(autoincrement())
+  conversation_id Int
+  message         String    @db.Text
+  sent_user       Int?
+  recieved_user   Int?
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model notifications {
+  id              Int       @id @default(autoincrement())
+  order_id        Int?      @db.UnsignedInt
+  user_id         Int?
+  vendor_id       Int?
+  product_id      Int?
+  conversation_id Int?
+  is_read         Boolean   @default(false)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model order_items {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id        BigInt    @db.UnsignedBigInt
+  product_id      BigInt    @db.UnsignedBigInt
+  talla           String?   @db.VarChar(20)
+  cantidad        Int
+  precio_unitario Decimal   @db.Decimal(10, 2)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model order_tracks {
+  id         Int       @id @default(autoincrement())
+  order_id   Int
+  title      String?   @db.Text
+  text       String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model orders {
+  id                 Int           @id @default(autoincrement())
+  user_id            Int?
+  cart               String        @db.Text
+  method             String?       @db.VarChar(255)
+  shipping           String?       @db.VarChar(255)
+  pickup_location    String?       @db.VarChar(255)
+  totalQty           String
+  pay_amount         Float
+  txnid              String?       @db.VarChar(255)
+  charge_id          String?       @db.VarChar(255)
+  order_number       String        @db.VarChar(255)
+  payment_status     String        @default("Pending") @db.VarChar(255)
+  customer_email     String        @db.VarChar(255)
+  customer_name      String        @db.VarChar(255)
+  customer_country   String?
+  customer_phone     String        @db.VarChar(255)
+  customer_address   String?       @db.VarChar(255)
+  customer_city      String?       @db.VarChar(255)
+  customer_zip       String?       @db.VarChar(255)
+  shipping_name      String?       @db.VarChar(255)
+  shipping_country   String?
+  shipping_email     String?       @db.VarChar(255)
+  shipping_phone     String?       @db.VarChar(255)
+  shipping_address   String?       @db.VarChar(255)
+  shipping_city      String?       @db.VarChar(255)
+  shipping_zip       String?       @db.VarChar(255)
+  order_note         String?       @db.Text
+  coupon_code        String?
+  coupon_discount    String?
+  status             orders_status @default(pending)
+  created_at         DateTime?     @db.Timestamp(0)
+  updated_at         DateTime?     @db.Timestamp(0)
+  affilate_user      String?
+  affilate_charge    String?
+  currency_sign      String        @db.VarChar(10)
+  currency_name      String        @db.VarChar(10)
+  currency_value     Float
+  shipping_cost      Float         @default(0)
+  packing_cost       Float         @default(0)
+  tax                Float
+  tax_location       String?
+  dp                 Boolean       @default(false)
+  pay_id             String?       @db.Text
+  vendor_shipping_id String?       @db.Text
+  vendor_packing_id  String?       @db.Text
+  vendor_ids         String?       @db.VarChar(255)
+  wallet_price       Float         @default(0)
+  is_shipping        Int           @default(1) @db.TinyInt
+  shipping_title     String?       @db.Text
+  packing_title      String?       @db.Text
+  customer_state     String?
+  shipping_state     String?
+  discount           Int           @default(0)
+  affilate_users     String?       @db.Text
+  commission         Float         @default(0)
+  riders             String?       @db.Text
+}
+
+model packages {
+  id       Int     @id @default(autoincrement())
+  user_id  Int     @default(0)
+  title    String? @db.Text
+  subtitle String? @db.Text
+  price    Float   @default(0)
+}
+
+model pages {
+  id               Int     @id @default(autoincrement())
+  title            String
+  slug             String
+  details          String  @db.Text
+  photo            String? @db.VarChar(500)
+  meta_tag         String? @db.Text
+  meta_description String? @db.Text
+  header           Boolean @default(false)
+  footer           Boolean @default(false)
+}
+
+model pagesettings {
+  id                       Int     @id @default(autoincrement()) @db.UnsignedInt
+  contact_email            String
+  street                   String? @db.Text
+  phone                    String? @db.Text
+  fax                      String? @db.Text
+  email                    String? @db.Text
+  site                     String? @db.Text
+  best_seller_banner       String? @db.Text
+  best_seller_banner_link  String? @db.Text
+  big_save_banner          String? @db.Text
+  big_save_banner_link     String? @db.Text
+  best_seller_banner1      String? @db.Text
+  best_seller_banner_link1 String? @db.Text
+  big_save_banner1         String? @db.Text
+  big_save_banner_link1    String? @db.Text
+  big_save_banner_subtitle String? @db.VarChar(255)
+  big_save_banner_title    String? @db.VarChar(255)
+  big_save_banner_text     String? @db.Text
+  rightbanner1             String? @db.Text
+  rightbanner2             String? @db.Text
+  rightbannerlink1         String? @db.Text
+  rightbannerlink2         String? @db.Text
+  home                     Boolean @default(false)
+  blog                     Boolean @default(false)
+  faq                      Boolean @default(false)
+  contact                  Boolean @default(false)
+  category                 Boolean @default(false)
+  arrival_section          Boolean @default(true)
+  our_services             Boolean @default(true)
+  slider                   Boolean @default(false)
+  partner                  Boolean @default(true)
+  top_big_trending         Boolean @default(false)
+  top_banner               Int     @default(1)
+  large_banner             Int     @default(1)
+  bottom_banner            Int     @default(1)
+  best_selling             Int     @default(1)
+  newsletter               Int     @default(1)
+  deal_of_the_day          Int     @default(1)
+  best_sellers             Int     @default(1) @db.TinyInt
+  third_left_banner        Int
+  popular_products         Int     @default(1) @db.TinyInt
+  flash_deal               Int     @default(1) @db.TinyInt
+  top_brand                Int     @default(1) @db.TinyInt
+}
+
+model partners {
+  id    Int     @id @default(autoincrement())
+  photo String?
+  link  String?
+}
+
+model payment_gateways {
+  id           Int                    @id @default(autoincrement())
+  subtitle     String?
+  title        String?
+  details      String?                @db.Text
+  name         String?                @db.VarChar(100)
+  type         payment_gateways_type? @default(manual)
+  information  String?                @db.MediumText
+  keyword      String?
+  currency_id  String                 @default("*")
+  checkout     Int                    @default(1)
+  deposit      Int                    @default(1)
+  subscription Int                    @default(1)
+}
+
+model payments {
+  id         Int             @id @default(autoincrement())
+  user_id    Int?
+  method     String?         @db.VarChar(255)
+  acc_email  String?         @db.VarChar(255)
+  iban       String?         @db.VarChar(255)
+  country    String?         @db.VarChar(255)
+  acc_name   String?         @db.VarChar(255)
+  address    String?         @db.MediumText
+  swift      String?         @db.VarChar(255)
+  reference  String?         @db.MediumText
+  amount     Float?          @db.Float
+  fee        Float?          @default(0) @db.Float
+  created_at DateTime?       @db.DateTime(0)
+  updated_at DateTime?       @db.DateTime(0)
+  status     payments_status @default(pending)
+  type       payments_type
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model pickup_points {
+  id       BigInt @id @default(autoincrement())
+  user_id  Int?
+  location String @db.VarChar(255)
+  status   Int    @default(1)
+}
+
+model pickups {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  code       Int?      @db.SmallInt
+  name       String
+  address    String?   @db.VarChar(255)
+  activo     Boolean?  @db.Bit(1)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model points {
+  id               Int       @id @default(autoincrement())
+  user_id          Int?
+  type             Int?
+  code_transaction String?   @db.VarChar(20)
+  points           Int?
+  created_at       DateTime? @default(now()) @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model product_clicks {
+  id         Int       @id @default(autoincrement())
+  product_id Int
+  date       DateTime? @db.Date
+}
+
+model products {
+  id                  Int                   @id @default(autoincrement()) @db.UnsignedInt
+  sku                 String?               @db.VarChar(255)
+  product_type        products_product_type @default(normal)
+  affiliate_link      String?               @db.Text
+  user_id             Int                   @default(0)
+  category_id         Int                   @db.UnsignedInt
+  subcategory_id      Int?                  @db.UnsignedInt
+  childcategory_id    Int?                  @db.UnsignedInt
+  attributes          String?               @db.Text
+  name                String                @db.Text
+  slug                String?               @db.Text
+  photo               String
+  thumbnail           String?
+  file                String?
+  skui                String?
+  size                String?
+  size_qty            String?
+  size_price          String?
+  color               String?               @db.Text
+  price               Float
+  previous_price      Float?
+  details             String?               @db.Text
+  stock               Int?
+  policy              String?               @db.Text
+  status              Int                   @default(1) @db.UnsignedTinyInt
+  views               Int                   @default(0) @db.UnsignedInt
+  tags                String?
+  features            String?               @db.Text
+  colors              String?               @db.Text
+  product_condition   Boolean               @default(false)
+  ship                String?
+  is_meta             Boolean               @default(false)
+  meta_tag            String?               @db.Text
+  meta_description    String?               @db.Text
+  youtube             String?
+  type                products_type
+  license             String?               @db.Text
+  license_qty         String?               @db.Text
+  link                String?               @db.Text
+  platform            String?               @db.VarChar(255)
+  region              String?               @db.VarChar(255)
+  licence_type        String?               @db.VarChar(255)
+  measure             String?
+  featured            Int                   @default(0) @db.UnsignedTinyInt
+  best                Int                   @default(0) @db.UnsignedTinyInt
+  top                 Int                   @default(0) @db.UnsignedTinyInt
+  is_popular          Int                   @default(0)
+  hot                 Int                   @default(0) @db.UnsignedTinyInt
+  latest              Int                   @default(0) @db.UnsignedTinyInt
+  big                 Int                   @default(0) @db.UnsignedTinyInt
+  trending            Boolean               @default(false)
+  sale                Boolean               @default(false)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  is_discount         Boolean               @default(false)
+  discount_date       DateTime?             @db.Date
+  whole_sell_qty      String?               @db.Text
+  whole_sell_discount String?               @db.Text
+  is_catalog          Boolean               @default(false)
+  catalog_id          Int                   @default(0)
+  preordered          Boolean               @default(false)
+  minimum_qty         String?
+  color_all           String?               @db.Text
+  color_price         String?               @db.Text
+  stock_check         Int                   @default(1)
+  cross_products      String?               @db.VarChar(255)
+  popular             Int                   @default(0)
+  cart_items          cart_items[]
+  items               items[]
+
+  @@fulltext([attributes], map: "attributes")
+  @@fulltext([name], map: "name")
+}
+
+model ratings {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  product_id  Int
+  review      String?  @db.Text
+  rating      Int      @db.TinyInt
+  review_date DateTime @db.DateTime(0)
+}
+
+model replies {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      @db.UnsignedInt
+  comment_id Int      @db.UnsignedInt
+  text       String   @db.Text
+  created_at DateTime @default(dbgenerated("'0000-00-00 00:00:00'")) @db.Timestamp(0)
+  updated_at DateTime @default(dbgenerated("'0000-00-00 00:00:00'")) @db.Timestamp(0)
+}
+
+model reports {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  title      String?   @db.Text
+  note       String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model reviews {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  photo    String?
+  title    String?
+  subtitle String? @db.Text
+  details  String? @db.Text
+}
+
+model rewards {
+  id           BigInt @id @default(autoincrement())
+  order_amount Float  @default(0)
+  reward       Int    @default(0)
+}
+
+model rider_service_areas {
+  id       BigInt @id @default(autoincrement())
+  rider_id Int?
+  city_id  Int?
+  price    Float  @default(0)
+  status   Int    @default(1)
+}
+
+model riders {
+  id           BigInt               @id @default(autoincrement())
+  name         String?              @db.VarChar(255)
+  email        String?              @db.VarChar(255)
+  fax          String?              @db.VarChar(255)
+  zip          String?              @db.VarChar(255)
+  photo        String?              @db.VarChar(255)
+  password     String?              @db.VarChar(255)
+  email_verify riders_email_verify? @default(No)
+  phone        String?              @db.VarChar(255)
+  address      String?              @db.VarChar(255)
+  location     String?              @db.VarChar(255)
+  email_token  String?              @db.VarChar(255)
+  country      String?              @db.VarChar(30)
+  state_id     Int?
+  city_id      Int?
+  status       Int?
+  balance      Float?               @default(0)
+  created_at   DateTime?            @db.Timestamp(0)
+  updated_at   DateTime?            @db.Timestamp(0)
+}
+
+model roles {
+  id      Int     @id @default(autoincrement())
+  name    String?
+  section String? @db.Text
+}
+
+model seotools {
+  id               Int     @id @default(autoincrement()) @db.UnsignedInt
+  google_analytics String? @db.Text
+  facebook_pixel   String? @db.Text
+  meta_keys        String? @db.Text
+  meta_description String? @db.LongText
+}
+
+model services {
+  id      Int     @id @default(autoincrement())
+  user_id Int     @default(0)
+  title   String?
+  details String? @db.Text
+  photo   String?
+}
+
+model shippings {
+  id       Int     @id @default(autoincrement())
+  user_id  Int     @default(0)
+  title    String? @db.Text
+  subtitle String? @db.Text
+  price    Float   @default(0)
+}
+
+model sizes {
+  size  String  @id @default("S") @db.Char(2)
+  name  String? @db.VarChar(10)
+  order Int?
+}
+
+model sliders {
+  id             Int     @id @default(autoincrement()) @db.UnsignedInt
+  subtitle_text  String? @db.Text
+  subtitle_size  String? @db.VarChar(50)
+  subtitle_color String? @db.VarChar(50)
+  subtitle_anime String? @db.VarChar(50)
+  title_text     String? @db.Text
+  title_size     String? @db.VarChar(50)
+  title_color    String? @db.VarChar(50)
+  title_anime    String? @db.VarChar(50)
+  details_text   String? @db.Text
+  details_size   String? @db.VarChar(50)
+  details_color  String? @db.VarChar(50)
+  details_anime  String? @db.VarChar(50)
+  photo          String?
+  position       String? @db.VarChar(50)
+  link           String? @db.Text
+}
+
+model social_links {
+  id      Int     @id @default(autoincrement())
+  user_id Int     @default(0)
+  link    String  @db.Text
+  icon    String
+  status  Boolean @default(true)
+}
+
+model social_providers {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  provider_id String
+  provider    String
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model socialsettings {
+  id             Int     @id @default(autoincrement()) @db.UnsignedInt
+  facebook       String
+  gplus          String
+  twitter        String
+  linkedin       String
+  dribble        String?
+  f_status       Int     @default(1) @db.TinyInt
+  g_status       Int     @default(1) @db.TinyInt
+  t_status       Int     @default(1) @db.TinyInt
+  l_status       Int     @default(1) @db.TinyInt
+  d_status       Int     @default(1) @db.TinyInt
+  f_check        Int?    @db.TinyInt
+  g_check        Int?    @db.TinyInt
+  fclient_id     String? @db.Text
+  fclient_secret String? @db.Text
+  fredirect      String? @db.Text
+  gclient_id     String? @db.Text
+  gclient_secret String? @db.Text
+  gredirect      String? @db.Text
+}
+
+model states {
+  id         BigInt  @id @default(autoincrement())
+  country_id Int     @default(0)
+  state      String? @db.VarChar(111)
+  tax        Float   @default(0)
+  status     Int     @default(1)
+  owner_id   Int     @default(0)
+}
+
+model subcategories {
+  id          Int    @id @default(autoincrement())
+  category_id Int
+  name        String
+  slug        String
+  status      Int    @default(1) @db.TinyInt
+}
+
+model subscribers {
+  id    Int    @id @default(autoincrement())
+  email String
+}
+
+model subscriptions {
+  id               Int     @id @default(autoincrement())
+  title            String  @db.Text
+  price            Float   @default(0)
+  days             Int
+  allowed_products Int     @default(0)
+  details          String? @db.Text
+}
+
+model tallas {
+  talla     String    @id @db.VarChar(10)
+  orden     Int?      @db.SmallInt
+  create_at DateTime? @db.Timestamp(0)
+  update_at DateTime? @db.Timestamp(0)
+}
+
+model tiendas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  nombre     String    @db.VarChar(100)
+  direccion  String?   @db.VarChar(255)
+  telefono   String?   @db.VarChar(30)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model transactions {
+  id             Int       @id @default(autoincrement())
+  user_id        Int?
+  reward_point   Float?    @default(0)
+  reward_dolar   Float     @default(0)
+  txn_number     String?   @db.Text
+  amount         Float?    @default(0)
+  currency_sign  Bytes?    @db.Blob
+  currency_code  String?   @db.VarChar(255)
+  currency_value Float     @default(0)
+  method         String?   @db.VarChar(255)
+  txnid          String?   @db.VarChar(255)
+  details        String?   @db.Text
+  type           String?   @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model transactions_details {
+  id         Int       @id @default(autoincrement())
+  txnid      String?   @db.VarChar(255)
+  order_id   Int?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([txnid, order_id], map: "txnid_order_id")
+}
+
+model user_notifications {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  order_number String    @db.Text
+  is_read      Boolean   @default(false)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model user_points {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    Int
+  order_id   Int
+  amount     Decimal   @db.Decimal(10, 2)
+  points     Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model user_subscriptions {
+  id               Int       @id @default(autoincrement())
+  user_id          Int
+  subscription_id  Int
+  title            String    @db.Text
+  currency_sign    String    @db.VarChar(50)
+  currency_code    String    @db.VarChar(50)
+  currency_value   String?   @db.VarChar(50)
+  price            Float     @default(0)
+  days             Int
+  allowed_products Int       @default(0)
+  details          String?   @db.Text
+  method           String    @default("Free") @db.VarChar(50)
+  txnid            String?   @db.VarChar(255)
+  charge_id        String?   @db.VarChar(255)
+  flutter_id       String?   @db.Text
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  status           Int       @default(0)
+  payment_number   String?   @db.Text
+}
+
+model users {
+  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
+  name               String
+  dni                String
+  codEmpl            String?              @db.VarChar(20)
+  photo              String?
+  zip                String?
+  city               String?
+  country            String?              @db.VarChar(100)
+  state_id           Int?
+  city_id            Int?
+  address            String?
+  phone              String?
+  fax                String?
+  email              String
+  password           String?
+  remember_token     String?              @db.VarChar(100)
+  created_at         DateTime?            @db.Timestamp(0)
+  updated_at         DateTime?            @db.Timestamp(0)
+  is_provider        Int                  @default(0) @db.TinyInt
+  status             Int                  @default(0) @db.TinyInt
+  verification_link  String?              @db.Text
+  email_verified     users_email_verified @default(No)
+  affilate_code      String?              @db.Text
+  affilate_income    Float                @default(0)
+  shop_name          String?              @db.Text
+  owner_name         String?              @db.Text
+  shop_number        String?              @db.Text
+  shop_address       String?              @db.Text
+  reg_number         String?              @db.Text
+  shop_message       String?              @db.Text
+  shop_details       String?              @db.Text
+  shop_image         String?
+  f_url              String?              @db.Text
+  g_url              String?              @db.Text
+  t_url              String?              @db.Text
+  l_url              String?              @db.Text
+  is_vendor          Boolean              @default(false)
+  f_check            Boolean              @default(false)
+  g_check            Boolean              @default(false)
+  t_check            Boolean              @default(false)
+  l_check            Boolean              @default(false)
+  mail_sent          Boolean              @default(false)
+  shipping_cost      Float                @default(0)
+  current_balance    Float                @default(0)
+  date               DateTime?            @db.Date
+  ban                Boolean              @default(false)
+  balance            Float                @default(0)
+  admin_commission   Float                @default(0)
+  reward             Float                @default(0)
+  email_token        String?              @db.Text
+  credito_disponible Decimal              @default(0.00) @db.Decimal(10, 2)
+}
+
+model vendor_orders {
+  id           Int                  @id @default(autoincrement())
+  user_id      Int
+  order_id     Int
+  qty          Int
+  price        Float
+  order_number String
+  status       vendor_orders_status @default(pending)
+  created_at   DateTime?            @default(now()) @db.Timestamp(0)
+}
+
+model verifications {
+  id             Int                   @id @default(autoincrement())
+  user_id        Int
+  attachments    String?               @db.Text
+  status         verifications_status?
+  text           String?               @db.Text
+  admin_warning  Boolean               @default(false)
+  warning_reason String?               @db.Text
+  created_at     DateTime?             @db.Timestamp(0)
+  updated_at     DateTime?             @db.Timestamp(0)
+}
+
+model wishlists {
+  id         Int @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int @db.UnsignedInt
+  product_id Int @db.UnsignedInt
+}
+
+model withdraws {
+  id         Int              @id @default(autoincrement())
+  user_id    Int?
+  method     String?          @db.VarChar(255)
+  acc_email  String?          @db.VarChar(255)
+  iban       String?          @db.VarChar(255)
+  country    String?          @db.VarChar(255)
+  acc_name   String?          @db.VarChar(255)
+  address    String?          @db.Text
+  swift      String?          @db.VarChar(255)
+  reference  String?          @db.Text
+  amount     Float?           @db.Float
+  fee        Float?           @default(0) @db.Float
+  created_at DateTime?        @db.DateTime(0)
+  updated_at DateTime?        @db.DateTime(0)
+  status     withdraws_status @default(pending)
+  type       withdraws_type
+}
+
+enum counters_type {
+  referral
+  browser
+}
+
+enum products_product_type {
+  normal
+  affiliate
+}
+
+enum banners_type {
+  Large
+  TopSmall
+  BottomSmall
+}
+
+enum verifications_status {
+  Pending
+  Verified
+  Declined
+}
+
+enum payment_gateways_type {
+  manual
+  automatic
+}
+
+enum admin_user_conversations_type {
+  Ticket
+  Dispute
+}
+
+enum vendor_orders_status {
+  pending
+  processing
+  completed
+  declined
+  on_delivery @map("on delivery")
+}
+
+enum riders_email_verify {
+  Yes
+  No
+}
+
+enum payments_status {
+  pending
+  completed
+  rejected
+}
+
+enum withdraws_status {
+  pending
+  completed
+  rejected
+}
+
+enum payments_type {
+  user
+  vendor
+  rider
+}
+
+enum withdraws_type {
+  user
+  vendor
+  rider
+}
+
+enum users_email_verified {
+  Yes
+  No
+}
+
+enum orders_status {
+  pending
+  processing
+  completed
+  declined
+  on_delivery @map("on delivery")
+}
+
+enum products_type {
+  Physical
+  Digital
+  License
+  Listing
+}
+
+enum generalsettings_header_color {
+  light
+  dark
+}
