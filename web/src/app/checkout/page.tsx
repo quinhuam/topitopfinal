@@ -17,7 +17,9 @@ export default function CheckoutPage() {
   const [selectedPayment, setSelectedPayment] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPayModal, setShowPayModal] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState<string>("");
+  const [qrText, setQrText] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +36,23 @@ export default function CheckoutPage() {
     load();
   }, []);
 
-  // Modal se abre solo al hacer clic en "Confirmar pedido"
+  // Generar QR en el cliente usando la librería 'qrcode'
+  useEffect(() => {
+    const gen = async () => {
+      if (!qrText) { setQrDataUrl(null); return; }
+      try {
+        const mod = await import('qrcode');
+        const dataUrl = await mod.default.toDataURL(qrText, { width: 220, margin: 1 });
+        setQrDataUrl(dataUrl);
+      } catch (e) {
+        // si falla, no bloqueamos la UI; mostramos el texto para conversión manual
+        setQrDataUrl(null);
+      }
+    };
+    gen();
+  }, [qrText]);
+
+  // Confirmación inline, sin modal
 
   const subtotalForClient = useMemo(() => {
     if (!cart) return 0;
@@ -70,13 +88,119 @@ export default function CheckoutPage() {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || 'No se pudo crear la orden');
       }
-      await res.json();
-      router.push('/dashboard');
+      const data = await res.json();
+      return data;
     } catch (e: any) {
       setError(e.message || 'Error al confirmar');
+      return null;
     } finally {
       setSubmitting(false);
-      setShowPayModal(false);
+    }
+  };
+
+  // Procesa pago: genera token -> obtiene access_token -> muestra texto -> crea orden
+  const handleProcessPaymentAndCreateOrder = async () => {
+    setError(null);
+    setSubmitting(true);
+    setConfirmationMessage('');
+    try {
+      if (selectedPayment === 'credito') {
+        // Solo crear la orden y mostrar mensaje de agradecimiento
+        const order = await handleCreateOrder();
+        if (!order) return;
+        setConfirmationMessage('Muchas gracias por su pedido');
+        const amountCents = Math.round((total || 0) * 100);
+        fetch('/api/external-dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber: order?.order_number || order?.orderNumber || order?.id || '', amountCents, method: 'credito' }),
+        }).catch(() => {});
+        return;
+      }
+
+      // Generar token y obtener access_token
+      const tkRes = await fetch('/api/ligo-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ issuer: 'ligo', audience: 'ligo-calidad.com', subject: 'ligo@gmail.com', companyId: 'e8b4a36d-6f1d-4a2a-bf3a-ce9371dde4ab' }) });
+      const tkJson = await tkRes.json();
+      if (!tkRes.ok || !tkJson?.token) throw new Error(tkJson?.error || 'No se pudo generar token');
+      const authRes = await fetch('/api/ligo-auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tkJson.token }) });
+      const authJson = await authRes.json();
+      if (!authRes.ok || !authJson?.ok) throw new Error(authJson?.error || 'No se pudo autenticar');
+      const accessToken: string = authJson?.data?.access_token || authJson?.access_token;
+      if (!accessToken) throw new Error('No access_token recibido');
+
+      // Crear orden para obtener order_number
+      const order = await handleCreateOrder();
+      if (!order) return;
+      const orderNumber = order?.order_number || order?.orderNumber || order?.id || '';
+
+      // Llamar efímero
+      const cents = Math.round((total || 0) * 100);
+      const type = selectedPayment === 'transferencia' ? 'cci' : 'qr';
+      const efRes = await fetch('/api/ligo-efimero', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: accessToken, amount: cents, description: String(orderNumber), type }),
+      });
+      const efJson = await efRes.json();
+      if (!efRes.ok || !efJson?.ok) throw new Error(efJson?.error || 'No se pudo generar efímero');
+      if (selectedPayment === 'transferencia') {
+        const efCci = efJson?.data?.efimeroCci || efJson?.data?.cci || efJson?.efimeroCci || '';
+        const monto = Number(total || 0).toFixed(2);
+        const instr = [
+          'Muchas gracias por su pedido, aqui las instrucciones para realizar el pago:',
+          '1. Ingresar a su home banking',
+          '2. Ingresar a la cuenta desde donde se hara la transferencia',
+          `3. Debe ingresar el CCI: ${efCci}`,
+          `4. Ingresar el monto: S/ ${monto}`,
+        ].join('\n');
+        setConfirmationMessage(instr);
+        setQrText(null);
+        setQrDataUrl(null);
+
+        // Despachar payload externo (no bloquear ante error)
+        const amountCents = Math.round((total || 0) * 100);
+        fetch('/api/external-dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderNumber,
+            amountCents,
+            method: 'transferencia',
+            type: 'cci',
+            efimero: efJson?.data ?? efJson,
+          }),
+        }).catch(() => {});
+      } else {
+        // billetera: mostrar instrucciones y QR
+        const hashQr = efJson?.data?.hashQr || efJson?.hashQr || '';
+        const monto = Number(total || 0).toFixed(2);
+        const instr = [
+          '1. Abrir su billetera electronica',
+          '2. Escanear el siguiente QR',
+          `3. Ingresar el monto: S/ ${monto}`,
+        ].join('\n');
+        setConfirmationMessage(instr);
+        setQrText(hashQr || null);
+        setQrDataUrl(null);
+
+        // Despachar payload externo (no bloquear ante error)
+        const amountCents = Math.round((total || 0) * 100);
+        fetch('/api/external-dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderNumber,
+            amountCents,
+            method: 'billetera',
+            type: 'qr',
+            efimero: efJson?.data ?? efJson,
+          }),
+        }).catch(() => {});
+      }
+    } catch (e: any) {
+      setError(e.message || 'Error al procesar pago');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -86,6 +210,18 @@ export default function CheckoutPage() {
       <div className="text-sm text-gray-500">INICIO | PEDIDOS | PAGAR</div>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="lg:w-2/3 space-y-6">
+          {confirmationMessage ? (
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Confirmación</h2>
+              <p className="text-gray-700 whitespace-pre-line">{confirmationMessage}</p>
+              {qrDataUrl && (
+                <div className="mt-4 flex justify-center">
+                  <img src={qrDataUrl} alt="QR de pago" className="w-56 h-56" />
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
           <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <div className="flex border border-gray-200 rounded-lg p-1 mb-4 max-w-sm mx-auto">
               <button onClick={() => setDeliveryMethod('domicilio')} className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-colors ${deliveryMethod === 'domicilio' ? 'bg-red-600 text-white' : 'bg-transparent text-gray-700 hover:bg-gray-100'}`}>Envío a domicilio</button>
@@ -147,14 +283,16 @@ export default function CheckoutPage() {
             <div className="text-right mt-4">
               <button
                 disabled={!selectedPayment || submitting}
-                onClick={() => setShowPayModal(true)}
+                onClick={handleProcessPaymentAndCreateOrder}
                 className={`px-6 py-2 rounded-lg font-bold ${selectedPayment && !submitting ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
               >
-                {submitting ? 'Confirmando...' : 'Confirmar pedido'}
+                {submitting ? 'Procesando...' : 'Confirmar pedido'}
               </button>
               {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
             </div>
           </div>
+            </>
+          )}
         </div>
 
         <div className="lg:w-1/3">
@@ -177,27 +315,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-      {showPayModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => !submitting && setShowPayModal(false)} />
-          <div className="relative bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
-            <h3 className="text-lg font-bold mb-2">Confirmación de pago</h3>
-            <p className="text-sm text-gray-700 mb-6">
-              {selectedPayment === 'billetera' || selectedPayment === 'transferencia'
-                ? 'Procesando con LIGO'
-                : 'Procesando con su linea de credito'}
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button disabled={submitting} onClick={() => setShowPayModal(false)} className="px-4 py-2 rounded border font-semibold">Cancelar</button>
-              {(selectedPayment === 'billetera' || selectedPayment === 'transferencia') ? (
-                <button disabled={submitting} onClick={handleCreateOrder} className={`px-4 py-2 rounded font-semibold ${submitting ? 'bg-gray-300 text-gray-600' : 'bg-red-600 text-white hover:bg-red-700'}`}>Confirmar</button>
-              ) : (
-                <button disabled={submitting} onClick={() => setShowPayModal(false)} className="px-4 py-2 rounded font-semibold bg-red-600 text-white hover:bg-red-700">Entendido</button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal eliminado: confirmación inline */}
     </div>
   );
 }

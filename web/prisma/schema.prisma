@@ -853,6 +853,20 @@ model rider_service_areas {
   status   Int    @default(1)
 }
 
+/// Registra las respuestas de las APIs de LIGO (transferencia: CCI efímero, billetera: QR)
+model ligo_transactions {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  method       String    @db.VarChar(20)   // billetera | transferencia
+  type         String    @db.VarChar(10)   // qr | cci
+  order_number String?   @db.VarChar(255)
+  description  String?   @db.Text
+  amount       Int                         // en centavos
+  cci          String?   @db.VarChar(50)
+  hash_qr      String?   @db.Text
+  response     String?   @db.LongText      // JSON de respuesta como texto
+  created_at   DateTime? @db.Timestamp(0)
+}
+
 model riders {
   id           BigInt               @id @default(autoincrement())
   name         String?              @db.VarChar(255)
